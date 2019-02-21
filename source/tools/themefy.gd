@@ -13,7 +13,6 @@ func _run():
 		if not filesys.get_file_type(path) == "Theme":
 			continue
 		var theme = load(path)
-		print("Creating theme for ", path)
 		theme.set_default_font(load("res://interface/fonts/kenvector_future_14.tres"))
 		set_stylebox(theme)
 		set_color(theme)
@@ -24,7 +23,6 @@ func _run():
 		count +=1
 	
 	filesys.scan()
-	print("Correctly created ", count, " themes")
 	
 func set_stylebox(theme):
 	for t in theme.get_type_list(""):
@@ -46,7 +44,7 @@ func set_stylebox(theme):
 				if not file.file_exists(path):
 					continue
 			var box = load(path)
-			theme.set_stylebox(s,t,box)
+			theme.set_stylebox(s, t, box)
 			
 func set_color(theme):
 	for t in theme.get_type_list(""):
@@ -81,8 +79,9 @@ func set_icons(theme, dir):
 			elif i == "off":
 				icon = load(find_file(dir, "boxCross"))
 			theme.set_icon(i, t, icon)
-				
+
 func find_file(dir, contain):
-	for f in dir.get_file_count():
-		if contain in dir.get_file(f):
-			return dir.get_file_path(f)
+	for f_index in dir.get_file_count():
+		if contain in dir.get_file(f_index):
+			return dir.get_file_path(f_index)
+
