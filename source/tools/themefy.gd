@@ -7,7 +7,7 @@ func _run():
 	var interface = get_editor_interface()
 	var filesys = interface.get_resource_filesystem()
 	var dir = filesys.get_filesystem_path(PATH)
-	
+	var count = 0
 	for f in dir.get_file_count():
 		var path = dir.get_file_path(f)
 		if not filesys.get_file_type(path) == "Theme":
@@ -20,6 +20,7 @@ func _run():
 		var subdir = dir.get_parent().get_subdir(subdir_index)
 		set_icons(theme, subdir)
 		ResourceSaver.save(theme.get_path(), theme)
+		count +=1
 	
 	filesys.scan()
 	
@@ -28,38 +29,20 @@ func set_stylebox(theme):
 		for s in theme.get_stylebox_list(t):
 			if t == "Tree":
 				continue
-			elif t == "Label":
-				var path = theme.get_path().replace("_theme.tres", "/") + "empty.tres"
+			var path = theme.get_path().replace("_theme.tres", "/")
+			if t == "Label" or t == "check":
+				path += "empty.tres"
 				var box = load(path)
-				theme.set_stylebox(s, t, box)
-				continue
-			elif "check" in t.to_lower():
-				var path = theme.get_path().replace("_theme.tres", "/") + "empty.tres"
-				var box = load(path)
-				theme.set_stylebox(s, t, box)
-				print("check")
-				continue
-			if s == "grabber_area":
-				var path = theme.get_path().replace("_theme.tres", "/") + "scroll_focus.tres"
-				var box = load(path)
-				theme.set_stylebox(s, t, box)
-				continue
-			elif s == "slider":
-				var path = theme.get_path().replace("_theme.tres", "/") + "scroll.tres"
-				var box = load(path)
-				theme.set_stylebox(s, t, box)
-				continue
-			elif s == "bg":
-				var path = theme.get_path().replace("_theme.tres", "/") + "scroll.tres"
-				var box = load(path)
-				theme.set_stylebox(s, t, box)
-				continue
-			elif s == "fg":
-				var path = theme.get_path().replace("_theme.tres", "/") + "scroll_focus.tres"
-				var box = load(path)
-				theme.set_stylebox(s, t, box)
-				continue
-			var path = theme.get_path().replace("_theme.tres", "/") + s + ".tres"
+			if s == "grabber_area" or s == "fg":
+				path += "scroll_focus.tres"
+			elif s == "slider" or s == "bg":
+				path += "scroll.tres"
+			else:
+				var file = File.new()
+				path += s + ".tres"
+				# check if the path exists, first
+				if not file.file_exists(path):
+					continue
 			var box = load(path)
 			theme.set_stylebox(s, t, box)
 			
@@ -84,17 +67,21 @@ func set_icons(theme, dir):
 			if i == "close":
 				icon = load(find_file(dir, "cross"))
 			elif i == "checked":
-				icon = load(find_file(dir, "boxCheck"))
+				icon = load(find_file(dir, "boxCheckmark"))
 			elif i == "radio_checked":
 				icon = load(find_file(dir, "boxTick"))
 			elif i == "radio_unchecked":
 				icon = load("res://interface/grey/grey_circle.png")
 			elif i == "unchecked":
 				icon = load("res://interface/grey/grey_box.png")
-				
+			elif i == "on":
+				icon = load(find_file(dir, "boxCheckmark"))
+			elif i == "off":
+				icon = load(find_file(dir, "boxCross"))
 			theme.set_icon(i, t, icon)
-				
+
 func find_file(dir, contain):
-	for f in dir.get_file_count():
-		if contain in dir.get_file(f):
-			return dir.get_file_path(f)
+	for f_index in dir.get_file_count():
+		if contain in dir.get_file(f_index):
+			return dir.get_file_path(f_index)
+
